@@ -2,11 +2,12 @@
 // DO NOT TOUCH THIS FILE
 // !!!!!!!!!!!!!!!!!!!!!!
 
-// This build file has three goals:
-// - Provide a single "build" task that does everything
-// - Provide a base for exams, including testing and code coverage as well as reports for scripts
-// - Mimic IDE behavior that users may expect, e.g. always run all tests, show tests even if they pass, ...
+// This file is an extensible Gradle build file for EPFL's Software Engineering course,
+// designed to allow students to easily build and test their code from the command-line,
+// and to allow the staff to automatically test code including coverage.
+// The main tasks to use are 'build' (includes tests + coverage) and 'run'.
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import java.nio.file.Files
 
@@ -14,6 +15,8 @@ plugins {
     id 'java'
     id 'application'
     id 'jacoco'
+
+    id "me.champeau.jmh" version "0.6.6"
 }
 
 repositories {
@@ -28,6 +31,15 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
 
+def javaVersionTarget = "17"
+if (JavaVersion.current().toString() != javaVersionTarget) {
+    println '!!!\n!!!'
+    println "WARNING: This project was designed for Java ${javaVersionTarget} but you are instead using Java ${JavaVersion.current()}."
+    println '         If you get this message while configuring an IDE such as IntelliJ or Android Studio, feel free to ignore it as long as it does not appear when running the app or tests.'
+    println "         Otherwise, please use Java ${javaVersionTarget}, or continue using your version at your own risk."
+    println '!!!\n!!!'
+}
+
 application {
     mainClass = 'App'
 }
@@ -35,6 +47,9 @@ application {
 run {
     // Force UTF-8
     systemProperty "file.encoding", "UTF-8"
+
+    // Allow users to input stuff during the 'run' task, necessary for System.in to work
+    standardInput = System.in
 }
 
 test {
@@ -92,4 +107,9 @@ build {
     doLast {
         println "You can view the code coverage report in ${buildDir}/reports/coverage/index.html"
     }
+}
+
+jmhJar {
+    // Force 'gradle jmh' to always run the benchmark
+    outputs.upToDateWhen { false }
 }
