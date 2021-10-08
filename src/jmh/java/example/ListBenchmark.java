@@ -6,6 +6,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 @State(Scope.Benchmark)
 public class ListBenchmark {
@@ -13,13 +14,16 @@ public class ListBenchmark {
     @State(Scope.Benchmark)
     public static class BenchmarkState {
         public ArrayList<Integer> arrayList;
+        public LinkedList<Integer> linkedList;
 
         @Setup(Level.Trial)
         public void setUp() {
             arrayList = new ArrayList<>();
+            linkedList = new LinkedList<>();
 
             for (int n = 0; n < 1_000_000; n++) {
                 arrayList.add(n);
+                linkedList.add(n);
             }
         }
     }
@@ -33,5 +37,14 @@ public class ListBenchmark {
         // The compiler cannot tell that the result of the 'get' call is not actually used, due to the "black hole"
         // If we just used 'get', the compiler might eliminate the call entirely since its result is not used!
         blackhole.consume(state.arrayList.get(500_000));
+    }
+
+    // Same thing but with a linked list (also added to the state)
+    @Benchmark
+    @Fork(value = 1, warmups = 0)
+    @Warmup(iterations = 1)
+    @Measurement(iterations = 2)
+    public void getMiddleLinked(BenchmarkState state, Blackhole blackhole) {
+        blackhole.consume(state.linkedList.get(500_000));
     }
 }

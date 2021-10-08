@@ -2,30 +2,25 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
+interface HttpClient {
+    String getText(String url) throws IOException;
+}
+
 public final class Joker {
-    public static void getJokes(int count) {
+    // The Joker now returns strings and takes in an HTTP client
+    public static List<String> getJokes(int count, HttpClient client) {
+        var result = new ArrayList<String>();
         for (int n = 0; n < count; n++) {
-            URL url;
             try {
-                url = new URL("https://icanhazdadjoke.com/");
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Bad URL");
-            }
-            HttpURLConnection connection;
-            try {
-                connection = (HttpURLConnection) url.openConnection();
+                result.add(client.getText("https://icanhazdadjoke.com/"));
             } catch (IOException e) {
-                throw new RuntimeException("Cannot connect to jokes server.");
-            }
-            connection.setRequestProperty("Accept", "text/plain");
-            try (var connectionStream = connection.getInputStream();
-                 var s = new Scanner(connectionStream).useDelimiter("\\A")) {
-                System.out.println("Joke " + n + ": " + s.next());
-            } catch (IOException e) {
-                throw new RuntimeException("Cannot fetch jokes.");
+                throw new RuntimeException("Cannot fetch jokes.", e);
             }
         }
+        return result;
     }
 }

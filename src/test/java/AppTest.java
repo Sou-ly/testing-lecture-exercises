@@ -22,8 +22,7 @@ final class AppTest {
         var outString = fakeOut.toString(StandardCharsets.UTF_8);
 
         assertThat(outString, containsString("Hello!"));
-        // TODO assert there are no "Joke" lines
     }
 
-    // TODO more tests, maybe there's a bug somewhere
+    // No solutions here, we already show you how to do it above :-)
 }

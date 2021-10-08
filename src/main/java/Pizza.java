@@ -26,7 +26,8 @@ public final class Pizza {
     public String toString() {
         var builder = new StringBuilder();
         if (isCalzone) {
-            builder.append("Calzone");
+            // Fixed bug: There was a missing space here
+            builder.append("Calzone ");
         } else {
             builder.append("Pizza ");
         }
